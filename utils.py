@@ -1,5 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
+import json
+import os
 
 def get_page(url):
     response = requests.get(url)
@@ -115,3 +117,11 @@ def extract_all_opinions(product_id):
         url = get_next_page(soup)
 
     return all_opinions
+
+def save_to_json(product_id, opinions):
+    os.makedirs("data/opinions", exist_ok=True)
+
+    file_path = f"data/opinions/{product_id}.json"
+
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(opinions, f, ensure_ascii=False, indent=4)
