@@ -1,24 +1,14 @@
-from utils import get_page, parse_page, get_product_reviews_url, extract_opinion
+from utils import extract_all_opinions
 
-product_id = "183662361"
-url = get_product_reviews_url(product_id)
+product_id = "170164749"
 
-html = get_page(url)
-soup = parse_page(html)
+opinions = extract_all_opinions(product_id)
 
-opinions = soup.select("div.js_product-review")
+print("Łączna liczba opinii:", len(opinions))
 
-real_opinions = [
-    op for op in opinions
-    if not op.select_one(".user-post__aisummary-author-name")
-]
-
-print("Liczba wszystkich bloków:", len(opinions))
-print("Liczba zwykłych opinii:", len(real_opinions))
-
-if real_opinions:
-    first_opinion = extract_opinion(real_opinions[0])
+if opinions:
     print("\n=== PIERWSZA OPINIA ===\n")
-    print(first_opinion)
-else:
-    print("Brak zwykłych opinii.")
+    print(opinions[0])
+
+    print("\n=== OSTATNIA OPINIA ===\n")
+    print(opinions[-1])

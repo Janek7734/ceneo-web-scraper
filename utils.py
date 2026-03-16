@@ -73,3 +73,45 @@ def extract_opinion(opinion_element):
             opinion["cons"] = items
 
     return opinion
+
+def get_next_page(soup):
+    next_page = soup.select_one("a.pagination__next")
+    if next_page:
+        return "https://www.ceneo.pl" + next_page["href"]
+    return None
+
+def extract_all_opinions(product_id):
+    url = get_product_reviews_url(product_id)
+    all_opinions = []
+
+    while url:
+        html = get_page(url)
+        soup = parse_page(html)
+
+        opinions = extract_opinions_from_page(soup)
+        all_opinions.extend(opinions)
+
+        url = get_next_page(soup)
+
+    return all_opinions
+
+def get_next_page(soup):
+    next_page = soup.select_one("a.pagination__next")
+    if next_page:
+        return "https://www.ceneo.pl" + next_page["href"]
+    return None
+
+def extract_all_opinions(product_id):
+    url = get_product_reviews_url(product_id)
+    all_opinions = []
+
+    while url:
+        html = get_page(url)
+        soup = parse_page(html)
+
+        opinions = extract_opinions_from_page(soup)
+        all_opinions.extend(opinions)
+
+        url = get_next_page(soup)
+
+    return all_opinions
