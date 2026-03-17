@@ -1,0 +1,104 @@
+import requests
+from bs4 import BeautifulSoup
+
+from app.models import Opinion
+
+
+def fetch_page(url):
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response.text
+
+
+def parse_html(html):
+    return BeautifulSoup(html, "html.parser")
+
+
+def build_reviews_url(product_id, page=1):
+    if page == 1:
+        return f"https://www.ceneo.pl/{product_id}#tab=reviews"
+    return f"https://www.ceneo.pl/{product_id}/opinie-{page}"
+
+
+def extract_product_name(soup):
+    title = soup.select_one("h1")
+    if title:
+        return title.get_text(strip=True)
+    return ""
+
+
+def extract_single_opinion(opinion_element):
+    opinion = Opinion(
+        opinion_id=opinion_element.get("data-entry-id", "")
+    )
+
+    author = opinion_element.select_one(".user-post__author-name")
+    if author:
+        opinion.author = author.get_text(strip=True)
+
+    recommendation = opinion_element.select_one(".user-post__author-recomendation em")
+    if recommendation:
+        opinion.recommendation = recommendation.get_text(strip=True)
+
+    score = opinion_element.select_one(".user-post__score-count")
+    if score:
+        opinion.score = score.get_text(strip=True)
+
+    content = opinion_element.select_one(".user-post__text")
+    if content:
+        opinion.content = content.get_text("\n", strip=True)
+
+    helpful = opinion_element.select_one("button.vote-yes")
+    if helpful:
+        opinion.helpful = helpful.get("data-total-vote", "0")
+
+    unhelpful = opinion_element.select_one("button.vote-no")
+    if unhelpful:
+        opinion.unhelpful = unhelpful.get("data-total-vote", "0")
+
+    pros = opinion_element.select(".review-feature__item--positive")
+    opinion.pros = [item.get_text(strip=True) for item in pros]
+
+    cons = opinion_element.select(".review-feature__item--negative")
+    opinion.cons = [item.get_text(strip=True) for item in cons]
+
+    times = opinion_element.select(".user-post__published time")
+    if len(times) > 0:
+        opinion.publish_date = times[0].get("datetime", "")
+    if len(times) > 1:
+        opinion.purchase_date = times[1].get("datetime", "")
+
+    return opinion
+
+
+def extract_opinions_from_page(soup):
+    opinion_elements = soup.select("div.js_product-review:not(.user-post--highlight)")
+    return [extract_single_opinion(opinion) for opinion in opinion_elements]
+
+
+def extract_product(product_id, max_pages=10):
+    opinions = []
+    product_name = ""
+
+    for page in range(1, max_pages + 1):
+        url = build_reviews_url(product_id, page)
+        print("Pobieram:", url)
+
+        html = fetch_page(url)
+        soup = parse_html(html)
+
+        if page == 1:
+            product_name = extract_product_name(soup)
+
+        page_opinions = extract_opinions_from_page(soup)
+        print("Znaleziono opinii:", len(page_opinions))
+
+        if not page_opinions:
+            break
+
+        opinions.extend(page_opinions)
+
+    return product_name, opinions

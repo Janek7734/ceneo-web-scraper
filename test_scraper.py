@@ -1,9 +1,20 @@
-from utils import extract_all_opinions, save_to_json
+from app.scraper import fetch_page, parse_html, build_reviews_url
 
 product_id = "183662361"
+url = build_reviews_url(product_id, page=1)
 
-opinions = extract_all_opinions(product_id)
-save_to_json(product_id, opinions)
+html = fetch_page(url)
+soup = parse_html(html)
 
-print("Zapisano opinie do pliku JSON.")
-print("Liczba opinii:", len(opinions))
+print("URL:", url)
+print("Długość HTML:", len(html))
+print("\n=== LINKI Z PIERWSZEJ STRONY ===\n")
+
+for link in soup.find_all("a", href=True):
+    href = link["href"]
+    text = link.get_text(" ", strip=True)
+
+    if "opini" in href.lower() or "review" in href.lower() or "opini" in text.lower():
+        print("TEXT:", text)
+        print("HREF:", href)
+        print("-" * 80)
