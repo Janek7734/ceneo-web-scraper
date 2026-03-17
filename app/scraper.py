@@ -1,14 +1,27 @@
 import requests
 from bs4 import BeautifulSoup
+import time
 
 from app.models import Opinion
 
 
-def fetch_page(url):
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
-    response = requests.get(url, headers=headers)
+session = requests.Session()
+session.headers.update({
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "pl,en-US;q=0.9,en;q=0.8",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Connection": "keep-alive",
+    "Upgrade-Insecure-Requests": "1",
+})
+
+
+def fetch_page(url, referer=None):
+    headers = {}
+    if referer:
+        headers["Referer"] = referer
+
+    response = session.get(url, headers=headers, timeout=20)
     response.raise_for_status()
     return response.text
 
@@ -83,15 +96,25 @@ def extract_product(product_id, max_pages=10):
     opinions = []
     product_name = ""
 
-    for page in range(1, max_pages + 1):
+    first_url = build_reviews_url(product_id, 1)
+
+    html = fetch_page(first_url)
+    soup = parse_html(html)
+
+    product_name = extract_product_name(soup)
+    page_opinions = extract_opinions_from_page(soup)
+
+    print("Pobieram:", first_url)
+    print("Znaleziono opinii:", len(page_opinions))
+
+    opinions.extend(page_opinions)
+
+    for page in range(2, max_pages + 1):
         url = build_reviews_url(product_id, page)
         print("Pobieram:", url)
 
-        html = fetch_page(url)
+        html = fetch_page(url, referer=first_url)
         soup = parse_html(html)
-
-        if page == 1:
-            product_name = extract_product_name(soup)
 
         page_opinions = extract_opinions_from_page(soup)
         print("Znaleziono opinii:", len(page_opinions))
@@ -100,5 +123,6 @@ def extract_product(product_id, max_pages=10):
             break
 
         opinions.extend(page_opinions)
+        time.sleep(1)
 
     return product_name, opinions

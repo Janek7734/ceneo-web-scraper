@@ -1,23 +1,60 @@
-from flask import render_template
+from flask import render_template, request, redirect, url_for
+
+from app.scraper import extract_product
+from app.models import Product
+from app.helpers import calculate_stats, save_product, load_product
 
 
 def register_routes(app):
     @app.route("/")
     def index():
-        return "Ceneo Web Scraper"
+        return render_template("index.html")
 
-    @app.route("/extract")
+    @app.route("/extract", methods=["GET", "POST"])
     def extract():
-        return "Extract page"
+        if request.method == "POST":
+            product_id = request.form.get("product_id", "").strip()
+
+            if not product_id:
+                return render_template("extract.html", error="Podaj product_id.")
+
+            try:
+                product_name, opinions = extract_product(product_id)
+
+                if not product_name or not opinions:
+                    return render_template(
+                        "extract.html",
+                        error="Nie udało się pobrać produktu lub opinii."
+                    )
+
+                product = Product(
+                    product_id=product_id,
+                    product_name=product_name,
+                    opinions=opinions
+                )
+
+                product.stats = calculate_stats(product.opinions)
+                save_product(product)
+
+                return redirect(url_for("product", product_id=product_id))
+
+            except Exception as e:
+                return render_template("extract.html", error=f"Błąd: {e}")
+
+        return render_template("extract.html", error=None)
 
     @app.route("/products")
     def products():
-        return "Products page"
+        return "Lista produktów"
 
     @app.route("/product/<product_id>")
     def product(product_id):
-        return f"Product page: {product_id}"
+        try:
+            product = load_product(product_id)
+            return render_template("product.html", product=product)
+        except Exception as e:
+            return f"Błąd ładowania produktu: {e}"
 
     @app.route("/charts/<product_id>")
     def charts(product_id):
-        return f"Charts page: {product_id}"
+        return f"Wykresy produktu: {product_id}"

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Produkt{% endblock %}
+
+{% block content %}
+    <h1>{{ product.product_name }}</h1>
+    <p><strong>Product ID:</strong> {{ product.product_id }}</p>
+
+    <h2>Statystyki</h2>
+    <ul>
+        <li>Liczba opinii: {{ product.stats.opinions_count }}</li>
+        <li>Liczba zalet: {{ product.stats.pros_count }}</li>
+        <li>Liczba wad: {{ product.stats.cons_count }}</li>
+        <li>Średnia ocena: {{ product.stats.average_score }}</li>
+    </ul>
+
+    <h2>Rekomendacje</h2>
+    <ul>
+        <li>Polecam: {{ product.stats.recommendations["Polecam"] }}</li>
+        <li>Nie polecam: {{ product.stats.recommendations["Nie polecam"] }}</li>
+        <li>Brak: {{ product.stats.recommendations["Brak"] }}</li>
+    </ul>
+
+    <h2>Opinie</h2>
+
+    {% for opinion in product.opinions %}
+        <hr>
+        <p><strong>Autor:</strong> {{ opinion.author }}</p>
+        <p><strong>Ocena:</strong> {{ opinion.score }}</p>
+        <p><strong>Rekomendacja:</strong> {{ opinion.recommendation }}</p>
+        <p><strong>Treść:</strong></p>
+        <p>{{ opinion.content }}</p>
+
+        {% if opinion.pros %}
+            <p><strong>Zalety:</strong> {{ opinion.pros|join(", ") }}</p>
+        {% endif %}
+
+        {% if opinion.cons %}
+            <p><strong>Wady:</strong> {{ opinion.cons|join(", ") }}</p>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

@@ -1,20 +1,20 @@
-from app.scraper import fetch_page, parse_html, build_reviews_url
+from app.scraper import extract_product
+from app.models import Product
+from app.helpers import calculate_stats, save_product
 
 product_id = "183662361"
-url = build_reviews_url(product_id, page=1)
 
-html = fetch_page(url)
-soup = parse_html(html)
+product_name, opinions = extract_product(product_id)
 
-print("URL:", url)
-print("Długość HTML:", len(html))
-print("\n=== LINKI Z PIERWSZEJ STRONY ===\n")
+product = Product(
+    product_id=product_id,
+    product_name=product_name,
+    opinions=opinions
+)
 
-for link in soup.find_all("a", href=True):
-    href = link["href"]
-    text = link.get_text(" ", strip=True)
+product.stats = calculate_stats(product.opinions)
+save_product(product)
 
-    if "opini" in href.lower() or "review" in href.lower() or "opini" in text.lower():
-        print("TEXT:", text)
-        print("HREF:", href)
-        print("-" * 80)
+print("Nazwa produktu:", product.product_name)
+print("Liczba opinii:", len(product.opinions))
+print("Statystyki:", product.stats)

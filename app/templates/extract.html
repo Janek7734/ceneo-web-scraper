@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Pobierz produkt{% endblock %}
+
+{% block content %}
+    <h1>Pobierz opinie o produkcie</h1>
+
+    <form method="POST">
+        <label for="product_id">Product ID:</label>
+        <input type="text" name="product_id" id="product_id" required>
+        <button type="submit">Pobierz</button>
+    </form>
+
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+{% endblock %}
