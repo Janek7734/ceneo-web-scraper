@@ -131,3 +131,32 @@ def load_product(product_id):
         opinions=opinions,
         stats=product_data.get("stats", {})
     )
+
+def load_all_products():
+    from app.models import Product
+
+    products = []
+    products_dir = "data/products"
+
+    if not os.path.exists(products_dir):
+        return products
+
+    for filename in os.listdir(products_dir):
+        if not filename.endswith(".json"):
+            continue
+
+        file_path = os.path.join(products_dir, filename)
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            product_data = json.load(f)
+
+        product = Product(
+            product_id=product_data["product_id"],
+            product_name=product_data.get("product_name", ""),
+            opinions=[],
+            stats=product_data.get("stats", {})
+        )
+
+        products.append(product)
+
+    return products

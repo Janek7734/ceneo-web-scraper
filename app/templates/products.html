@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Lista produktów{% endblock %}
+
+{% block content %}
+    <h1>Lista zapisanych produktów</h1>
+
+    {% if products %}
+        <table border="1" cellpadding="8">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Nazwa produktu</th>
+                    <th>Liczba opinii</th>
+                    <th>Średnia ocena</th>
+                    <th>Szczegóły</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                    <tr>
+                        <td>{{ product.product_id }}</td>
+                        <td>{{ product.product_name }}</td>
+                        <td>{{ product.stats.opinions_count }}</td>
+                        <td>{{ product.stats.average_score }}</td>
+                        <td>
+                            <a href="{{ url_for('product', product_id=product.product_id) }}">
+                                Zobacz
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Brak zapisanych produktów.</p>
+    {% endif %}
+{% endblock %}

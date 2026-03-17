@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for
 
 from app.scraper import extract_product
 from app.models import Product
-from app.helpers import calculate_stats, save_product, load_product
+from app.helpers import calculate_stats, save_product, load_product, load_all_products
 
 
 def register_routes(app):
@@ -45,7 +45,8 @@ def register_routes(app):
 
     @app.route("/products")
     def products():
-        return "Lista produktów"
+        products = load_all_products()
+        return render_template("products.html", products=products)
 
     @app.route("/product/<product_id>")
     def product(product_id):
