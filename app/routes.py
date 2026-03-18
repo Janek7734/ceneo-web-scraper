@@ -1,4 +1,5 @@
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, send_file
+
 
 from app.scraper import extract_product
 from app.models import Product
@@ -68,3 +69,15 @@ def register_routes(app):
     @app.route("/charts/<product_id>")
     def charts(product_id):
         return f"Wykresy produktu: {product_id}"
+
+    @app.route("/download/json/<product_id>")
+    def download_json(product_id):
+        return send_file(f"data/opinions/{product_id}.json", as_attachment=True)
+
+    @app.route("/download/csv/<product_id>")
+    def download_csv(product_id):
+        return send_file(f"data/opinions/{product_id}.csv", as_attachment=True)
+
+    @app.route("/download/xlsx/<product_id>")
+    def download_xlsx(product_id):
+        return send_file(f"data/opinions/{product_id}.xlsx", as_attachment=True)

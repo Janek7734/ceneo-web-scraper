@@ -6,15 +6,14 @@
     <h1>{{ product.product_name }}</h1>
     <p><strong>Product ID:</strong> {{ product.product_id }}</p>
 
-    <h2>Statystyki</h2>
+    <h2>Pobierz pliki</h2>
     <ul>
-        <li>Liczba opinii: {{ product.stats.opinions_count }}</li>
-        <li>Liczba zalet: {{ product.stats.pros_count }}</li>
-        <li>Liczba wad: {{ product.stats.cons_count }}</li>
-        <li>Średnia ocena: {{ product.stats.average_score }}</li>
+        <li><a href="{{ url_for('download_json', product_id=product.product_id) }}">Pobierz JSON</a></li>
+        <li><a href="{{ url_for('download_csv', product_id=product.product_id) }}">Pobierz CSV</a></li>
+        <li><a href="{{ url_for('download_xlsx', product_id=product.product_id) }}">Pobierz XLSX</a></li>
     </ul>
 
-    <h2>Rekomendacje</h2>
+    <h2>Statystyki</h2>
     <ul>
         <li>Polecam: {{ product.stats.recommendations["Polecam"] }}</li>
         <li>Nie polecam: {{ product.stats.recommendations["Nie polecam"] }}</li>
