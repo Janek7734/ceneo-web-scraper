@@ -2,7 +2,14 @@ from flask import render_template, request, redirect, url_for
 
 from app.scraper import extract_product
 from app.models import Product
-from app.helpers import calculate_stats, save_product, load_product, load_all_products
+from app.helpers import (
+    calculate_stats,
+    save_product,
+    load_product,
+    load_all_products,
+    save_opinions_to_csv,
+    save_opinions_to_xlsx
+)
 
 
 def register_routes(app):
@@ -35,6 +42,8 @@ def register_routes(app):
 
                 product.stats = calculate_stats(product.opinions)
                 save_product(product)
+                save_opinions_to_csv(product)
+                save_opinions_to_xlsx(product)
 
                 return redirect(url_for("product", product_id=product_id))
 

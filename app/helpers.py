@@ -1,6 +1,69 @@
 import os
 import json
+import csv
 
+def save_opinions_to_csv(product):
+    ensure_data_folders()
+
+    csv_path = f"data/opinions/{product.product_id}.csv"
+
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            "opinion_id",
+            "author",
+            "recommendation",
+            "score",
+            "content",
+            "pros",
+            "cons",
+            "helpful",
+            "unhelpful",
+            "publish_date",
+            "purchase_date"
+        ])
+
+        for opinion in product.opinions:
+            writer.writerow([
+                opinion.opinion_id,
+                opinion.author,
+                opinion.recommendation,
+                opinion.score,
+                opinion.content,
+                ", ".join(opinion.pros),
+                ", ".join(opinion.cons),
+                opinion.helpful,
+                opinion.unhelpful,
+                opinion.publish_date,
+                opinion.purchase_date
+            ])
+
+
+def save_opinions_to_xlsx(product):
+    ensure_data_folders()
+
+    import pandas as pd
+
+    xlsx_path = f"data/opinions/{product.product_id}.xlsx"
+
+    rows = []
+    for opinion in product.opinions:
+        rows.append({
+            "opinion_id": opinion.opinion_id,
+            "author": opinion.author,
+            "recommendation": opinion.recommendation,
+            "score": opinion.score,
+            "content": opinion.content,
+            "pros": ", ".join(opinion.pros),
+            "cons": ", ".join(opinion.cons),
+            "helpful": opinion.helpful,
+            "unhelpful": opinion.unhelpful,
+            "publish_date": opinion.publish_date,
+            "purchase_date": opinion.purchase_date
+        })
+
+    df = pd.DataFrame(rows)
+    df.to_excel(xlsx_path, index=False)
 
 def score_to_float(score_text):
     if not score_text:
