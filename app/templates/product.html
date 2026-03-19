@@ -12,7 +12,10 @@
         <li><a href="{{ url_for('download_csv', product_id=product.product_id) }}">Pobierz CSV</a></li>
         <li><a href="{{ url_for('download_xlsx', product_id=product.product_id) }}">Pobierz XLSX</a></li>
     </ul>
-
+    <h2>Wykresy</h2>
+    <p>
+    <a href="{{ url_for('charts', product_id=product.product_id) }}">Zobacz wykresy</a>
+    </p>
     <h2>Statystyki</h2>
     <ul>
         <li>Polecam: {{ product.stats.recommendations["Polecam"] }}</li>

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Wykresy{% endblock %}
+
+{% block content %}
+    <h1>Wykresy dla produktu</h1>
+    <p><strong>{{ product.product_name }}</strong></p>
+    <p>Product ID: {{ product.product_id }}</p>
+
+    <h2>Rekomendacje</h2>
+    <canvas id="recommendationsChart" width="400" height="200"></canvas>
+
+    <h2>Rozkład ocen</h2>
+    <canvas id="starsChart" width="400" height="200"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const recommendationsData = {
+            labels: ["Polecam", "Nie polecam", "Brak"],
+            datasets: [{
+                label: "Rekomendacje",
+                data: [
+                    {{ product.stats.recommendations["Polecam"] }},
+                    {{ product.stats.recommendations["Nie polecam"] }},
+                    {{ product.stats.recommendations["Brak"] }}
+                ]
+            }]
+        };
+
+        const starsData = {
+            labels: [{% for star, count in product.stats.stars_distribution.items() %}"{{ star }}"{% if not loop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: "Liczba opinii",
+                data: [{% for star, count in product.stats.stars_distribution.items() %}{{ count }}{% if not loop.last %}, {% endif %}{% endfor %}]
+            }]
+        };
+
+        new Chart(document.getElementById("recommendationsChart"), {
+            type: "pie",
+            data: recommendationsData
+        });
+
+        new Chart(document.getElementById("starsChart"), {
+            type: "bar",
+            data: starsData
+        });
+    </script>
+{% endblock %}
