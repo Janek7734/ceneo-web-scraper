@@ -13,29 +13,73 @@
         <li><a href="{{ url_for('download_xlsx', product_id=product.product_id) }}">Pobierz XLSX</a></li>
     </ul>
 
+    <h2>Wykresy</h2>
+    <p>
+        <a href="{{ url_for('charts', product_id=product.product_id) }}">Zobacz wykresy</a>
+    </p>
+
     <h2>Statystyki</h2>
+    <ul>
+        <li>Liczba opinii: {{ product.stats.opinions_count }}</li>
+        <li>Liczba zalet: {{ product.stats.pros_count }}</li>
+        <li>Liczba wad: {{ product.stats.cons_count }}</li>
+        <li>Średnia ocena: {{ product.stats.average_score }}</li>
+    </ul>
+
+    <h2>Rekomendacje</h2>
     <ul>
         <li>Polecam: {{ product.stats.recommendations["Polecam"] }}</li>
         <li>Nie polecam: {{ product.stats.recommendations["Nie polecam"] }}</li>
         <li>Brak: {{ product.stats.recommendations["Brak"] }}</li>
     </ul>
 
+    <h2>Filtrowanie i sortowanie</h2>
+    <form method="GET">
+        <label for="author">Autor:</label>
+        <input type="text" name="author" id="author" value="{{ author_filter }}">
+
+        <label for="sort">Sortowanie:</label>
+        <select name="sort" id="sort">
+            <option value="">Brak</option>
+            <option value="score_asc" {% if sort_by == "score_asc" %}selected{% endif %}>Ocena rosnąco</option>
+            <option value="score_desc" {% if sort_by == "score_desc" %}selected{% endif %}>Ocena malejąco</option>
+        </select>
+
+        <button type="submit">Zastosuj</button>
+    </form>
+
     <h2>Opinie</h2>
 
-    {% for opinion in product.opinions %}
-        <hr>
-        <p><strong>Autor:</strong> {{ opinion.author }}</p>
-        <p><strong>Ocena:</strong> {{ opinion.score }}</p>
-        <p><strong>Rekomendacja:</strong> {{ opinion.recommendation }}</p>
-        <p><strong>Treść:</strong></p>
-        <p>{{ opinion.content }}</p>
-
-        {% if opinion.pros %}
-            <p><strong>Zalety:</strong> {{ opinion.pros|join(", ") }}</p>
-        {% endif %}
-
-        {% if opinion.cons %}
-            <p><strong>Wady:</strong> {{ opinion.cons|join(", ") }}</p>
-        {% endif %}
-    {% endfor %}
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>Autor</th>
+                <th>Ocena</th>
+                <th>Rekomendacja</th>
+                <th>Treść</th>
+                <th>Zalety</th>
+                <th>Wady</th>
+                <th>Pomocne</th>
+                <th>Niepomocne</th>
+                <th>Data publikacji</th>
+                <th>Data zakupu</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for opinion in opinions %}
+                <tr>
+                    <td>{{ opinion.author }}</td>
+                    <td>{{ opinion.score }}</td>
+                    <td>{{ opinion.recommendation }}</td>
+                    <td>{{ opinion.content }}</td>
+                    <td>{{ opinion.pros|join(", ") }}</td>
+                    <td>{{ opinion.cons|join(", ") }}</td>
+                    <td>{{ opinion.helpful }}</td>
+                    <td>{{ opinion.unhelpful }}</td>
+                    <td>{{ opinion.publish_date }}</td>
+                    <td>{{ opinion.purchase_date }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

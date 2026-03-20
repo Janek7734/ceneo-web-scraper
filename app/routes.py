@@ -62,7 +62,37 @@ def register_routes(app):
     def product(product_id):
         try:
             product = load_product(product_id)
-            return render_template("product.html", product=product)
+
+            author_filter = request.args.get("author", "").strip().lower()
+            sort_by = request.args.get("sort", "")
+
+            filtered_opinions = product.opinions
+
+            if author_filter:
+                filtered_opinions = [
+                    opinion for opinion in filtered_opinions
+                    if author_filter in opinion.author.lower()
+                ]
+
+            if sort_by == "score_asc":
+                filtered_opinions = sorted(
+                    filtered_opinions,
+                    key=lambda opinion: float(opinion.score.split("/")[0].replace(",", ".")) if opinion.score else 0
+                )
+            elif sort_by == "score_desc":
+                filtered_opinions = sorted(
+                    filtered_opinions,
+                    key=lambda opinion: float(opinion.score.split("/")[0].replace(",", ".")) if opinion.score else 0,
+                    reverse=True
+                )
+
+            return render_template(
+                "product.html",
+                product=product,
+                opinions=filtered_opinions,
+                author_filter=author_filter,
+                sort_by=sort_by
+            )
         except Exception as e:
             return f"Błąd ładowania produktu: {e}"
 
