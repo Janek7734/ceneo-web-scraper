@@ -98,7 +98,11 @@ def register_routes(app):
 
     @app.route("/charts/<product_id>")
     def charts(product_id):
-        return f"Wykresy produktu: {product_id}"
+        try:
+            product = load_product(product_id)
+            return render_template("charts.html", product=product)
+        except Exception as e:
+            return f"Błąd ładowania wykresów: {e}"
 
     @app.route("/download/json/<product_id>")
     def download_json(product_id):
