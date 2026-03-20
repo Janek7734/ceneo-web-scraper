@@ -12,21 +12,43 @@
                     <th>Product ID</th>
                     <th>Nazwa produktu</th>
                     <th>Liczba opinii</th>
+                    <th>Liczba zalet</th>
+                    <th>Liczba wad</th>
                     <th>Średnia ocena</th>
-                    <th>Szczegóły</th>
+                    <th>Pliki</th>
+                    <th>Wykresy</th>
                 </tr>
             </thead>
+            <h2>Sortowanie</h2>
+            <form method="GET">
+                <label for="sort">Sortuj według średniej oceny:</label>
+                <select name="sort" id="sort">
+                    <option value="">Brak</option>
+                    <option value="rating_desc" {% if sort_by == "rating_desc" %}selected{% endif %}>Malejąco</option>
+                    <option value="rating_asc" {% if sort_by == "rating_asc" %}selected{% endif %}>Rosnąco</option>
+                </select>
+                <button type="submit">Zastosuj</button>
+            </form>
             <tbody>
                 {% for product in products %}
                     <tr>
                         <td>{{ product.product_id }}</td>
-                        <td>{{ product.product_name }}</td>
-                        <td>{{ product.stats.opinions_count }}</td>
-                        <td>{{ product.stats.average_score }}</td>
                         <td>
                             <a href="{{ url_for('product', product_id=product.product_id) }}">
-                                Zobacz
+                                {{ product.product_name }}
                             </a>
+                        </td>
+                        <td>{{ product.stats.opinions_count }}</td>
+                        <td>{{ product.stats.pros_count }}</td>
+                        <td>{{ product.stats.cons_count }}</td>
+                        <td>{{ product.stats.average_score }}</td>
+                        <td>
+                            <a href="{{ url_for('download_json', product_id=product.product_id) }}">JSON</a> |
+                            <a href="{{ url_for('download_csv', product_id=product.product_id) }}">CSV</a> |
+                            <a href="{{ url_for('download_xlsx', product_id=product.product_id) }}">XLSX</a>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('charts', product_id=product.product_id) }}">Zobacz</a>
                         </td>
                     </tr>
                 {% endfor %}

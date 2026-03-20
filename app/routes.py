@@ -56,7 +56,22 @@ def register_routes(app):
     @app.route("/products")
     def products():
         products = load_all_products()
-        return render_template("products.html", products=products)
+
+        sort_by = request.args.get("sort", "")
+
+        if sort_by == "rating_desc":
+            products = sorted(
+                products,
+                key=lambda product: product.stats.get("average_score", 0),
+                reverse=True
+            )
+        elif sort_by == "rating_asc":
+            products = sorted(
+                products,
+                key=lambda product: product.stats.get("average_score", 0)
+            )
+
+        return render_template("products.html", products=products, sort_by=sort_by)
 
     @app.route("/product/<product_id>")
     def product(product_id):
@@ -115,3 +130,7 @@ def register_routes(app):
     @app.route("/download/xlsx/<product_id>")
     def download_xlsx(product_id):
         return send_file(f"data/opinions/{product_id}.xlsx", as_attachment=True)
+
+    @app.route("/about")
+    def about():
+        return render_template("about.html")

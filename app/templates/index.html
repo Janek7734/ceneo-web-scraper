@@ -1,18 +1,30 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Ceneo Web Scraper{% endblock %}</title>
-</head>
-<body>
-    <nav>
-        <a href="/">Strona główna</a> |
-        <a href="/extract">Pobierz produkt</a> |
-        <a href="/products">Lista produktów</a>
-    </nav>
+{% extends "base.html" %}
 
-    <hr>
+{% block title %}Strona główna{% endblock %}
 
-    {% block content %}{% endblock %}
-</body>
-</html>
+{% block content %}
+    <h1>Ceneo Web Scraper</h1>
+
+    <p>
+        Aplikacja służy do pobierania opinii o produktach z serwisu Ceneo,
+        zapisywania ich do plików oraz prezentowania statystyk i wykresów.
+    </p>
+
+    <h2>Jak działa aplikacja</h2>
+    <ul>
+        <li>użytkownik podaje product_id produktu,</li>
+        <li>aplikacja pobiera dane i opinie,</li>
+        <li>zapisuje je do plików JSON, CSV i XLSX,</li>
+        <li>wyświetla statystyki, tabelę opinii i wykresy.</li>
+    </ul>
+
+    <h2>Wykorzystane biblioteki i technologie</h2>
+    <ul>
+        <li>Python</li>
+        <li>Flask</li>
+        <li>requests</li>
+        <li>BeautifulSoup</li>
+        <li>pandas</li>
+        <li>Chart.js</li>
+    </ul>
+{% endblock %}
