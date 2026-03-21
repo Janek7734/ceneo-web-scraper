@@ -1,4 +1,5 @@
-from flask import render_template, request, redirect, url_for, send_file
+import os
+from flask import render_template, request, redirect, url_for, send_file, abort
 
 
 from app.scraper import extract_product
@@ -11,6 +12,8 @@ from app.helpers import (
     save_opinions_to_csv,
     save_opinions_to_xlsx
 )
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def register_routes(app):
@@ -121,15 +124,24 @@ def register_routes(app):
 
     @app.route("/download/json/<product_id>")
     def download_json(product_id):
-        return send_file(f"data/opinions/{product_id}.json", as_attachment=True)
+        path = os.path.join(BASE_DIR, "data", "opinions", f"{product_id}.json")
+        if not os.path.exists(path):
+            abort(404)
+        return send_file(path, as_attachment=True)
 
     @app.route("/download/csv/<product_id>")
     def download_csv(product_id):
-        return send_file(f"data/opinions/{product_id}.csv", as_attachment=True)
+        path = os.path.join(BASE_DIR, "data", "opinions", f"{product_id}.csv")
+        if not os.path.exists(path):
+            abort(404)
+        return send_file(path, as_attachment=True)
 
     @app.route("/download/xlsx/<product_id>")
     def download_xlsx(product_id):
-        return send_file(f"data/opinions/{product_id}.xlsx", as_attachment=True)
+        path = os.path.join(BASE_DIR, "data", "opinions", f"{product_id}.xlsx")
+        if not os.path.exists(path):
+            abort(404)
+        return send_file(path, as_attachment=True)
 
     @app.route("/about")
     def about():
