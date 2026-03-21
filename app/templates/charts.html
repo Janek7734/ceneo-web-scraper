@@ -7,11 +7,15 @@
     <p><strong>{{ product.product_name }}</strong></p>
     <p>Product ID: {{ product.product_id }}</p>
 
-    <h2>Rekomendacje</h2>
-    <canvas id="recommendationsChart" width="400" height="200"></canvas>
+    <div style="max-width: 500px; margin-bottom: 40px;">
+        <h2>Rekomendacje</h2>
+        <canvas id="recommendationsChart"></canvas>
+    </div>
 
-    <h2>Rozkład ocen</h2>
-    <canvas id="starsChart" width="400" height="200"></canvas>
+    <div style="max-width: 700px;">
+        <h2>Rozkład ocen</h2>
+        <canvas id="starsChart"></canvas>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -37,12 +41,20 @@
 
         new Chart(document.getElementById("recommendationsChart"), {
             type: "pie",
-            data: recommendationsData
+            data: recommendationsData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true
+            }
         });
 
         new Chart(document.getElementById("starsChart"), {
             type: "bar",
-            data: starsData
+            data: starsData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true
+            }
         });
     </script>
 {% endblock %}
