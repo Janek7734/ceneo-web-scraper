@@ -5,6 +5,18 @@
 {% block content %}
     <h1>Lista zapisanych produktów</h1>
 
+    <h2>Sortowanie</h2>
+    <form method="GET">
+        <label for="sort">Sortuj:</label>
+        <select name="sort" id="sort">
+            <option value="">Brak</option>
+            <option value="rating_desc" {% if sort_by == "rating_desc" %}selected{% endif %}>Średnia malejąco</option>
+            <option value="rating_asc" {% if sort_by == "rating_asc" %}selected{% endif %}>Średnia rosnąco</option>
+            <option value="opinions_desc" {% if sort_by == "opinions_desc" %}selected{% endif %}>Najwięcej opinii</option>
+        </select>
+        <button type="submit">Zastosuj</button>
+    </form>
+
     {% if products %}
         <table border="1" cellpadding="8">
             <thead>
@@ -19,16 +31,6 @@
                     <th>Wykresy</th>
                 </tr>
             </thead>
-            <h2>Sortowanie</h2>
-            <form method="GET">
-                <label for="sort">Sortuj według średniej oceny:</label>
-                <select name="sort" id="sort">
-                    <option value="">Brak</option>
-                    <option value="rating_desc" {% if sort_by == "rating_desc" %}selected{% endif %}>Malejąco</option>
-                    <option value="rating_asc" {% if sort_by == "rating_asc" %}selected{% endif %}>Rosnąco</option>
-                </select>
-                <button type="submit">Zastosuj</button>
-            </form>
             <tbody>
                 {% for product in products %}
                     <tr>

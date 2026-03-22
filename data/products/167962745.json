@@ -1,0 +1,27 @@
+{
+    "product_id": "167962745",
+    "product_name": "Telewizor OLED Samsung QE65S90D 65 cali 4K UHD",
+    "stats": {
+        "opinions_count": 10,
+        "pros_count": 8,
+        "cons_count": 1,
+        "average_score": 4.2,
+        "recommendations": {
+            "Polecam": 9,
+            "Nie polecam": 1,
+            "Brak": 0
+        },
+        "stars_distribution": {
+            "0.5": 1,
+            "1.0": 0,
+            "1.5": 0,
+            "2.0": 0,
+            "2.5": 0,
+            "3.0": 0,
+            "3.5": 0,
+            "4.0": 3,
+            "4.5": 1,
+            "5.0": 5
+        }
+    }
+}

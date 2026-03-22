@@ -38,11 +38,24 @@
         <label for="author">Autor:</label>
         <input type="text" name="author" id="author" value="{{ author_filter }}">
 
+        <label for="recommendation">Rekomendacja:</label>
+        <select name="recommendation" id="recommendation">
+            <option value="">Wszystkie</option>
+            <option value="Polecam" {% if recommendation_filter == "Polecam" %}selected{% endif %}>Polecam</option>
+            <option value="Nie polecam" {% if recommendation_filter == "Nie polecam" %}selected{% endif %}>Nie polecam</option>
+        </select>
+
+        <label for="min_score">Minimalna ocena:</label>
+        <input type="text" name="min_score" id="min_score" value="{{ min_score }}">
+
         <label for="sort">Sortowanie:</label>
         <select name="sort" id="sort">
             <option value="">Brak</option>
             <option value="score_asc" {% if sort_by == "score_asc" %}selected{% endif %}>Ocena rosnąco</option>
             <option value="score_desc" {% if sort_by == "score_desc" %}selected{% endif %}>Ocena malejąco</option>
+            <option value="author_asc" {% if sort_by == "author_asc" %}selected{% endif %}>Autor A-Z</option>
+            <option value="author_desc" {% if sort_by == "author_desc" %}selected{% endif %}>Autor Z-A</option>
+            <option value="helpful_desc" {% if sort_by == "helpful_desc" %}selected{% endif %}>Najbardziej pomocne</option>
         </select>
 
         <button type="submit">Zastosuj</button>

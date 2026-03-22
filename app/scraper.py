@@ -1,17 +1,20 @@
-import requests
+import cloudscraper
 from bs4 import BeautifulSoup
-import time
 
 from app.models import Opinion
 
 
-session = requests.Session()
+session = cloudscraper.create_scraper(browser={
+    "browser": "firefox",
+    "platform": "windows",
+    "mobile": False
+})
+
 session.headers.update({
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "pl,en-US;q=0.9,en;q=0.8",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Connection": "keep-alive",
+    "Referer": "https://www.ceneo.pl/",
     "Upgrade-Insecure-Requests": "1",
 })
 
@@ -21,7 +24,7 @@ def fetch_page(url, referer=None):
     if referer:
         headers["Referer"] = referer
 
-    response = session.get(url, headers=headers, timeout=20)
+    response = session.get(url, headers=headers, timeout=30)
     response.raise_for_status()
     return response.text
 
@@ -87,7 +90,7 @@ def extract_single_opinion(opinion_element):
     return opinion
 
 
-def extract_opinions_from_page(soup):
+def extract_opinions_from_structured_html(soup):
     opinion_elements = soup.select("div.js_product-review:not(.user-post--highlight)")
     return [extract_single_opinion(opinion) for opinion in opinion_elements]
 
@@ -102,7 +105,7 @@ def extract_product(product_id, max_pages=10):
     soup = parse_html(html)
 
     product_name = extract_product_name(soup)
-    page_opinions = extract_opinions_from_page(soup)
+    page_opinions = extract_opinions_from_structured_html(soup)
 
     print("Pobieram:", first_url)
     print("Znaleziono opinii:", len(page_opinions))
@@ -116,13 +119,12 @@ def extract_product(product_id, max_pages=10):
         html = fetch_page(url, referer=first_url)
         soup = parse_html(html)
 
-        page_opinions = extract_opinions_from_page(soup)
+        page_opinions = extract_opinions_from_structured_html(soup)
         print("Znaleziono opinii:", len(page_opinions))
 
         if not page_opinions:
             break
 
         opinions.extend(page_opinions)
-        time.sleep(1)
 
     return product_name, opinions

@@ -1,6 +1,4 @@
-import os
-from flask import render_template, request, redirect, url_for, send_file, abort
-
+from flask import render_template, request, redirect, url_for, send_file
 
 from app.scraper import extract_product
 from app.models import Product
@@ -12,8 +10,6 @@ from app.helpers import (
     save_opinions_to_csv,
     save_opinions_to_xlsx
 )
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def register_routes(app):
@@ -73,6 +69,12 @@ def register_routes(app):
                 products,
                 key=lambda product: product.stats.get("average_score", 0)
             )
+        elif sort_by == "opinions_desc":
+            products = sorted(
+                products,
+                key=lambda product: product.stats.get("opinions_count", 0),
+                reverse=True
+            )
 
         return render_template("products.html", products=products, sort_by=sort_by)
 
@@ -82,33 +84,63 @@ def register_routes(app):
             product = load_product(product_id)
 
             author_filter = request.args.get("author", "").strip().lower()
-            sort_by = request.args.get("sort", "")
+            recommendation_filter = request.args.get("recommendation", "").strip()
+            min_score = request.args.get("min_score", "").strip()
+            sort_by = request.args.get("sort", "").strip()
 
-            filtered_opinions = product.opinions
+            opinions = product.opinions
 
             if author_filter:
-                filtered_opinions = [
-                    opinion for opinion in filtered_opinions
+                opinions = [
+                    opinion for opinion in opinions
                     if author_filter in opinion.author.lower()
                 ]
 
+            if recommendation_filter:
+                opinions = [
+                    opinion for opinion in opinions
+                    if opinion.recommendation == recommendation_filter
+                ]
+
+            if min_score:
+                try:
+                    min_score_value = float(min_score.replace(",", "."))
+                    opinions = [
+                        opinion for opinion in opinions
+                        if opinion.score and float(opinion.score.split("/")[0].replace(",", ".")) >= min_score_value
+                    ]
+                except ValueError:
+                    pass
+
             if sort_by == "score_asc":
-                filtered_opinions = sorted(
-                    filtered_opinions,
+                opinions = sorted(
+                    opinions,
                     key=lambda opinion: float(opinion.score.split("/")[0].replace(",", ".")) if opinion.score else 0
                 )
             elif sort_by == "score_desc":
-                filtered_opinions = sorted(
-                    filtered_opinions,
+                opinions = sorted(
+                    opinions,
                     key=lambda opinion: float(opinion.score.split("/")[0].replace(",", ".")) if opinion.score else 0,
+                    reverse=True
+                )
+            elif sort_by == "author_asc":
+                opinions = sorted(opinions, key=lambda opinion: opinion.author.lower())
+            elif sort_by == "author_desc":
+                opinions = sorted(opinions, key=lambda opinion: opinion.author.lower(), reverse=True)
+            elif sort_by == "helpful_desc":
+                opinions = sorted(
+                    opinions,
+                    key=lambda opinion: int(opinion.helpful) if str(opinion.helpful).isdigit() else 0,
                     reverse=True
                 )
 
             return render_template(
                 "product.html",
                 product=product,
-                opinions=filtered_opinions,
+                opinions=opinions,
                 author_filter=author_filter,
+                recommendation_filter=recommendation_filter,
+                min_score=min_score,
                 sort_by=sort_by
             )
         except Exception as e:
@@ -124,24 +156,15 @@ def register_routes(app):
 
     @app.route("/download/json/<product_id>")
     def download_json(product_id):
-        path = os.path.join(BASE_DIR, "data", "opinions", f"{product_id}.json")
-        if not os.path.exists(path):
-            abort(404)
-        return send_file(path, as_attachment=True)
+        return send_file(f"data/opinions/{product_id}.json", as_attachment=True)
 
     @app.route("/download/csv/<product_id>")
     def download_csv(product_id):
-        path = os.path.join(BASE_DIR, "data", "opinions", f"{product_id}.csv")
-        if not os.path.exists(path):
-            abort(404)
-        return send_file(path, as_attachment=True)
+        return send_file(f"data/opinions/{product_id}.csv", as_attachment=True)
 
     @app.route("/download/xlsx/<product_id>")
     def download_xlsx(product_id):
-        path = os.path.join(BASE_DIR, "data", "opinions", f"{product_id}.xlsx")
-        if not os.path.exists(path):
-            abort(404)
-        return send_file(path, as_attachment=True)
+        return send_file(f"data/opinions/{product_id}.xlsx", as_attachment=True)
 
     @app.route("/about")
     def about():
