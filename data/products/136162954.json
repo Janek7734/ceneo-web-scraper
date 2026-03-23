@@ -1,0 +1,27 @@
+{
+    "product_id": "136162954",
+    "product_name": "Kidde K5Dco KIDK5DCO",
+    "stats": {
+        "opinions_count": 10,
+        "pros_count": 1,
+        "cons_count": 0,
+        "average_score": 4.9,
+        "recommendations": {
+            "Polecam": 10,
+            "Nie polecam": 0,
+            "Brak": 0
+        },
+        "stars_distribution": {
+            "0.5": 0,
+            "1.0": 0,
+            "1.5": 0,
+            "2.0": 0,
+            "2.5": 0,
+            "3.0": 0,
+            "3.5": 0,
+            "4.0": 1,
+            "4.5": 0,
+            "5.0": 9
+        }
+    }
+}

@@ -28,10 +28,16 @@ def register_routes(app):
             try:
                 product_name, opinions = extract_product(product_id)
 
-                if not product_name or not opinions:
+                if not product_name:
                     return render_template(
                         "extract.html",
-                        error="Nie udało się pobrać produktu lub opinii."
+                        error="Nie udało się pobrać nazwy produktu."
+                    )
+
+                if not opinions:
+                    return render_template(
+                        "extract.html",
+                        error="Nie udało się pobrać opinii dla tego produktu."
                     )
 
                 product = Product(
@@ -41,6 +47,7 @@ def register_routes(app):
                 )
 
                 product.stats = calculate_stats(product.opinions)
+
                 save_product(product)
                 save_opinions_to_csv(product)
                 save_opinions_to_xlsx(product)
@@ -55,24 +62,23 @@ def register_routes(app):
     @app.route("/products")
     def products():
         products = load_all_products()
-
-        sort_by = request.args.get("sort", "")
+        sort_by = request.args.get("sort", "").strip()
 
         if sort_by == "rating_desc":
             products = sorted(
                 products,
-                key=lambda product: product.stats.get("average_score", 0),
+                key=lambda product: product.stats.get("average_score", 0) if product.stats else 0,
                 reverse=True
             )
         elif sort_by == "rating_asc":
             products = sorted(
                 products,
-                key=lambda product: product.stats.get("average_score", 0)
+                key=lambda product: product.stats.get("average_score", 0) if product.stats else 0
             )
         elif sort_by == "opinions_desc":
             products = sorted(
                 products,
-                key=lambda product: product.stats.get("opinions_count", 0),
+                key=lambda product: product.stats.get("opinions_count", 0) if product.stats else 0,
                 reverse=True
             )
 
@@ -88,12 +94,12 @@ def register_routes(app):
             min_score = request.args.get("min_score", "").strip()
             sort_by = request.args.get("sort", "").strip()
 
-            opinions = product.opinions
+            opinions = product.opinions if product.opinions else []
 
             if author_filter:
                 opinions = [
                     opinion for opinion in opinions
-                    if author_filter in opinion.author.lower()
+                    if opinion.author and author_filter in opinion.author.lower()
                 ]
 
             if recommendation_filter:
@@ -124,9 +130,16 @@ def register_routes(app):
                     reverse=True
                 )
             elif sort_by == "author_asc":
-                opinions = sorted(opinions, key=lambda opinion: opinion.author.lower())
+                opinions = sorted(
+                    opinions,
+                    key=lambda opinion: opinion.author.lower() if opinion.author else ""
+                )
             elif sort_by == "author_desc":
-                opinions = sorted(opinions, key=lambda opinion: opinion.author.lower(), reverse=True)
+                opinions = sorted(
+                    opinions,
+                    key=lambda opinion: opinion.author.lower() if opinion.author else "",
+                    reverse=True
+                )
             elif sort_by == "helpful_desc":
                 opinions = sorted(
                     opinions,
@@ -143,6 +156,7 @@ def register_routes(app):
                 min_score=min_score,
                 sort_by=sort_by
             )
+
         except Exception as e:
             return f"Błąd ładowania produktu: {e}"
 

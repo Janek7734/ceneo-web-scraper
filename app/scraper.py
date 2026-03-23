@@ -1,30 +1,24 @@
-import cloudscraper
+import requests
 from bs4 import BeautifulSoup
 
 from app.models import Opinion
 
 
-session = cloudscraper.create_scraper(browser={
-    "browser": "firefox",
-    "platform": "windows",
-    "mobile": False
-})
-
-session.headers.update({
+HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:148.0) Gecko/20100101 Firefox/148.0",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "pl,en-US;q=0.9,en;q=0.8",
     "Referer": "https://www.ceneo.pl/",
     "Upgrade-Insecure-Requests": "1",
-})
+}
 
 
 def fetch_page(url, referer=None):
-    headers = {}
+    headers = HEADERS.copy()
     if referer:
         headers["Referer"] = referer
 
-    response = session.get(url, headers=headers, timeout=30)
+    response = requests.get(url, headers=headers, timeout=30)
     response.raise_for_status()
     return response.text
 
@@ -33,10 +27,8 @@ def parse_html(html):
     return BeautifulSoup(html, "html.parser")
 
 
-def build_reviews_url(product_id, page=1):
-    if page == 1:
-        return f"https://www.ceneo.pl/{product_id}#tab=reviews"
-    return f"https://www.ceneo.pl/{product_id}/opinie-{page}"
+def build_reviews_url(product_id):
+    return f"https://www.ceneo.pl/{product_id}#tab=reviews"
 
 
 def extract_product_name(soup):
@@ -95,29 +87,38 @@ def extract_opinions_from_structured_html(soup):
     return [extract_single_opinion(opinion) for opinion in opinion_elements]
 
 
-def extract_product(product_id, max_pages=10):
+def get_next_page_url(soup):
+    next_page = soup.select_one("a.pagination__next")
+
+    if next_page and next_page.get("href"):
+        href = next_page.get("href")
+
+        if href.startswith("http"):
+            return href
+        return "https://www.ceneo.pl" + href
+
+    return None
+
+
+def extract_product(product_id, max_pages=50):
     opinions = []
     product_name = ""
+    visited_urls = set()
 
-    first_url = build_reviews_url(product_id, 1)
+    url = build_reviews_url(product_id)
+    referer = None
+    page = 1
 
-    html = fetch_page(first_url)
-    soup = parse_html(html)
+    while url and page <= max_pages and url not in visited_urls:
+        visited_urls.add(url)
 
-    product_name = extract_product_name(soup)
-    page_opinions = extract_opinions_from_structured_html(soup)
-
-    print("Pobieram:", first_url)
-    print("Znaleziono opinii:", len(page_opinions))
-
-    opinions.extend(page_opinions)
-
-    for page in range(2, max_pages + 1):
-        url = build_reviews_url(product_id, page)
         print("Pobieram:", url)
 
-        html = fetch_page(url, referer=first_url)
+        html = fetch_page(url, referer=referer)
         soup = parse_html(html)
+
+        if not product_name:
+            product_name = extract_product_name(soup)
 
         page_opinions = extract_opinions_from_structured_html(soup)
         print("Znaleziono opinii:", len(page_opinions))
@@ -126,5 +127,9 @@ def extract_product(product_id, max_pages=10):
             break
 
         opinions.extend(page_opinions)
+
+        referer = url
+        url = get_next_page_url(soup)
+        page += 1
 
     return product_name, opinions
