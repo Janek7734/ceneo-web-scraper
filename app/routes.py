@@ -1,3 +1,4 @@
+import os
 from flask import render_template, request, redirect, url_for, send_file
 
 from app.scraper import extract_product
@@ -170,15 +171,18 @@ def register_routes(app):
 
     @app.route("/download/json/<product_id>")
     def download_json(product_id):
-        return send_file(f"data/opinions/{product_id}.json", as_attachment=True)
+        path = os.path.join(app.root_path, "..", "data", "opinions", f"{product_id}.json")
+        return send_file(path, as_attachment=True)
 
     @app.route("/download/csv/<product_id>")
     def download_csv(product_id):
-        return send_file(f"data/opinions/{product_id}.csv", as_attachment=True)
+        path = os.path.join(app.root_path, "..", "data", "opinions", f"{product_id}.csv")
+        return send_file(path, as_attachment=True)
 
     @app.route("/download/xlsx/<product_id>")
     def download_xlsx(product_id):
-        return send_file(f"data/opinions/{product_id}.xlsx", as_attachment=True)
+        path = os.path.join(app.root_path, "..", "data", "opinions", f"{product_id}.xlsx")
+        return send_file(path, as_attachment=True)
 
     @app.route("/about")
     def about():
