@@ -10,6 +10,7 @@ HEADERS = {
     "Accept-Language": "pl,en-US;q=0.9,en;q=0.8",
     "Referer": "https://www.ceneo.pl/",
     "Upgrade-Insecure-Requests": "1",
+    "Cookie": "cookiebar=hide; cookiebar_accepted=1"
 }
 
 
@@ -99,22 +100,21 @@ def get_next_page_url(soup):
 
     return None
 
+def get_reviews_page_url(product_id, page_number):
+    if page_number == 1:
+        return f"https://www.ceneo.pl/{product_id}#tab=reviews"
+    return f"https://www.ceneo.pl/{product_id}/opinie-{page_number}"
+
 
 def extract_product(product_id, max_pages=50):
     opinions = []
     product_name = ""
-    visited_urls = set()
 
-    url = build_reviews_url(product_id)
-    referer = None
-    page = 1
-
-    while url and page <= max_pages and url not in visited_urls:
-        visited_urls.add(url)
-
+    for page_number in range(1, max_pages + 1):
+        url = get_reviews_page_url(product_id, page_number)
         print("Pobieram:", url)
 
-        html = fetch_page(url, referer=referer)
+        html = fetch_page(url)
         soup = parse_html(html)
 
         if not product_name:
@@ -127,9 +127,5 @@ def extract_product(product_id, max_pages=50):
             break
 
         opinions.extend(page_opinions)
-
-        referer = url
-        url = get_next_page_url(soup)
-        page += 1
 
     return product_name, opinions

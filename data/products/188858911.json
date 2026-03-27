@@ -3,13 +3,13 @@
     "product_name": "Resident Evil Requiem (Gra PS5)",
     "stats": {
         "opinions_count": 10,
-        "pros_count": 0,
+        "pros_count": 1,
         "cons_count": 0,
-        "average_score": 4.8,
+        "average_score": 5.0,
         "recommendations": {
-            "Polecam": 9,
+            "Polecam": 10,
             "Nie polecam": 0,
-            "Brak": 1
+            "Brak": 0
         },
         "stars_distribution": {
             "0.5": 0,
@@ -17,11 +17,11 @@
             "1.5": 0,
             "2.0": 0,
             "2.5": 0,
-            "3.0": 1,
+            "3.0": 0,
             "3.5": 0,
             "4.0": 0,
             "4.5": 0,
-            "5.0": 9
+            "5.0": 10
         }
     }
 }

@@ -8,7 +8,7 @@ def save_opinions_to_csv(product):
     csv_path = f"data/opinions/{product.product_id}.csv"
 
     with open(csv_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, delimiter=";")
         writer.writerow([
             "opinion_id",
             "author",

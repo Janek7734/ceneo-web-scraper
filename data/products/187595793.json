@@ -1,0 +1,27 @@
+{
+    "product_id": "187595793",
+    "product_name": "Apple AirPods Pro 3",
+    "stats": {
+        "opinions_count": 10,
+        "pros_count": 4,
+        "cons_count": 1,
+        "average_score": 3.75,
+        "recommendations": {
+            "Polecam": 7,
+            "Nie polecam": 3,
+            "Brak": 0
+        },
+        "stars_distribution": {
+            "0.5": 2,
+            "1.0": 0,
+            "1.5": 0,
+            "2.0": 0,
+            "2.5": 1,
+            "3.0": 0,
+            "3.5": 0,
+            "4.0": 1,
+            "4.5": 0,
+            "5.0": 6
+        }
+    }
+}
